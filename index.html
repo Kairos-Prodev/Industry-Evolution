@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#182a31">
+  <meta name="description" content="Industry Evolution: construa sua rede industrial, do campo ao megacomplexo." />
+  <title>Industry Evolution</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="game" aria-label="Industry Evolution">
+    <canvas id="world" aria-label="Mundo do jogo"></canvas>
+    <div class="shade"></div>
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">IE</span><div><b>INDUSTRY</b><small>EVOLUTION</small></div></div>
+      <div class="area-badge"><span class="live-dot"></span><span id="area-name">FAZENDA</span><small id="area-number">ÁREA 01</small></div>
+      <div class="money-pill"><span>◉</span><b id="coins">0</b></div>
+      <button class="icon-button menu-toggle" id="menu-open" aria-label="Abrir menu">☰</button>
+    </header>
+    <section id="title-screen" class="title-screen">
+      <div class="title-card">
+        <div class="title-logo">IE</div>
+        <p class="title-kicker">CONSTRUA • PRODUZA • EVOLUA</p>
+        <h1>INDUSTRY<br><em>EVOLUTION</em></h1>
+        <p class="title-copy">Uma pequena colheita é o começo de um império industrial.</p>
+        <div class="title-actions"><button id="continue-game" class="primary">Continuar</button><button id="new-game" class="secondary">Novo jogo</button></div>
+        <div class="title-links"><button data-open-tab="settings">Configurações</button><button data-open-tab="progress">Progresso</button><button id="about-open">Privacidade</button><button id="terms-open">Termos de uso</button><button id="developer-open">Sobre</button><button id="donate-open">Doações</button></div>
+        <small class="title-foot">JOGO OFFLINE • SALVAMENTO LOCAL</small>
+      </div>
+    </section>
+    <section class="inventory" aria-live="polite">
+      <div class="inventory-title">MOCHILA <span id="capacity">0 / 8</span></div>
+      <div class="inventory-row"><span class="item-icon wheat-icon">✳</span><span id="wheat-count">0</span><span class="item-icon bread-icon">▰</span><span id="bread-count">0</span><span class="inventory-spacer"></span><span class="inventory-label">ESTOQUE</span><b id="stock-count">0</b></div>
+      <div class="load-track"><i id="load-fill"></i></div>
+    </section>
+    <div id="toast" class="toast" role="status"></div>
+    <div class="help-chip" id="help-chip">WASD / setas para andar</div>
+    <div id="prompt" class="world-prompt" hidden></div>
+    <button id="action-button" class="action-button" hidden></button>
+    <div id="joystick" class="joystick" aria-label="Joystick"><div class="joy-ring"></div><div class="joy-knob" id="joy-knob"></div></div>
+    <button id="mobile-menu" class="icon-button mobile-menu" aria-label="Menu">☰</button>
+    <aside id="panel" class="panel" aria-hidden="true">
+      <div class="panel-head"><div><small id="panel-kicker">FAZENDA</small><h1 id="panel-title">Evolução</h1></div><button id="panel-close" class="icon-button" aria-label="Fechar">×</button></div>
+      <nav id="panel-tabs" class="tabs">
+        <button class="tab active" data-tab="overview">Visão geral</button><button class="tab" data-tab="progress">Progresso</button><button class="tab" data-tab="settings">Ajustes</button>
+      </nav>
+      <div id="panel-content" class="panel-content"></div>
+      <footer><span>Progresso salvo neste dispositivo</span><span id="save-state">● salvo</span></footer>
+    </aside>
+    <div id="modal-cover" class="modal-cover" hidden><section class="confirm-modal"><h2 id="modal-title"></h2><p id="modal-text"></p><div class="modal-actions"><button id="modal-cancel" class="secondary">Cancelar</button><button id="modal-confirm" class="danger">Apagar progresso</button></div></section></div>
+  </main>
+  <script src="main.js" defer></script>
+</body>
+</html>

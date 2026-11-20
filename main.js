@@ -1,0 +1,96 @@
+/* Industry Evolution — jogo autônomo em Canvas 2D, sem bibliotecas externas. */
+'use strict';
+
+const AREAS = [
+  {name:'Fazenda', raw:'Trigo', product:'Pão', machine:'Forno', rawColor:'#e5c856', productColor:'#c98345', sky:'#b8d895', grass:'#75ad68', accent:'#e8c86e', price:0, value:12},
+  {name:'Moinho', raw:'Grão', product:'Farinha', machine:'Moinho', rawColor:'#c8a35c', productColor:'#eee1bf', sky:'#b6d1ae', grass:'#77a36f', accent:'#d7bd79', price:1800, value:20},
+  {name:'Padaria industrial', raw:'Farinha', product:'Pães especiais', machine:'Padaria', rawColor:'#eadcba', productColor:'#d48c4b', sky:'#bfccad', grass:'#799b62', accent:'#e1a269', price:4200, value:34},
+  {name:'Pecuária', raw:'Leite', product:'Queijo', machine:'Laticínio', rawColor:'#f0f2dc', productColor:'#eac958', sky:'#bdd6c2', grass:'#70a874', accent:'#f2d673', price:9500, value:55},
+  {name:'Serraria', raw:'Madeira', product:'Tábuas', machine:'Serraria', rawColor:'#9a663e', productColor:'#cf9b63', sky:'#c6d5b5', grass:'#739265', accent:'#d5a36b', price:21000, value:84},
+  {name:'Mineração', raw:'Pedra', product:'Minério', machine:'Britador', rawColor:'#858d8b', productColor:'#b38152', sky:'#b5c4b9', grass:'#728578', accent:'#b8c0b7', price:46000, value:126},
+  {name:'Fundição', raw:'Minério', product:'Metal', machine:'Fundição', rawColor:'#a77a50', productColor:'#d17a49', sky:'#bac5bd', grass:'#6e8176', accent:'#e18453', price:98000, value:188},
+  {name:'Joalheria', raw:'Ouro', product:'Joias', machine:'Ourivesaria', rawColor:'#e1bc59', productColor:'#65cbd2', sky:'#c2d1c5', grass:'#768d77', accent:'#f0d071', price:205000, value:280},
+  {name:'Indústria têxtil', raw:'Fibra', product:'Tecido', machine:'Tear', rawColor:'#9cbb84', productColor:'#b178b4', sky:'#c5d5cf', grass:'#799879', accent:'#d7a7d5', price:430000, value:420},
+  {name:'Fábrica de ferramentas', raw:'Aço', product:'Ferramentas', machine:'Prensa', rawColor:'#a7adae', productColor:'#79a5ba', sky:'#bdced0', grass:'#718e8c', accent:'#90bec8', price:900000, value:620},
+  {name:'Indústria química', raw:'Composto', product:'Polímero', machine:'Reator', rawColor:'#9bcdad', productColor:'#73d5c8', sky:'#afced1', grass:'#6d9b8e', accent:'#85dbc4', price:1850000, value:920},
+  {name:'Fábrica de componentes', raw:'Liga', product:'Peças', machine:'Montadora', rawColor:'#9babb1', productColor:'#e0a562', sky:'#b4c9cb', grass:'#718d8b', accent:'#e4b570', price:3800000, value:1380},
+  {name:'Eletrônicos', raw:'Silício', product:'Circuitos', machine:'Linha SMT', rawColor:'#979ba7', productColor:'#67bbd0', sky:'#b3c9d2', grass:'#718f91', accent:'#75cadd', price:7800000, value:2070},
+  {name:'Automobilística', raw:'Componentes', product:'Veículos', machine:'Montagem', rawColor:'#9aadb0', productColor:'#d46553', sky:'#b8cbd0', grass:'#758f91', accent:'#e17a67', price:16000000, value:3100},
+  {name:'Indústria naval', raw:'Aço naval', product:'Embarcações', machine:'Estaleiro', rawColor:'#778d99', productColor:'#7298c4', sky:'#a9c5d1', grass:'#6d9295', accent:'#83b2d1', price:33000000, value:4650},
+  {name:'Energia', raw:'Combustível', product:'Energia', machine:'Turbina', rawColor:'#bd8954', productColor:'#f2d55f', sky:'#aeced0', grass:'#6e9794', accent:'#ffe170', price:67000000, value:6980},
+  {name:'Robótica', raw:'Componentes', product:'Robôs', machine:'Célula robótica', rawColor:'#9ba9ae', productColor:'#8dd09b', sky:'#b7d0d2', grass:'#718e92', accent:'#a4e4aa', price:138000000, value:10470},
+  {name:'Aeroespacial', raw:'Liga aeroespacial', product:'Módulos', machine:'Montagem orbital', rawColor:'#95a8b5', productColor:'#9cafe0', sky:'#a9c6d7', grass:'#6f899a', accent:'#bbc9ff', price:280000000, value:15700},
+  {name:'Tecnologia avançada', raw:'Cristal', product:'Tecnologia', machine:'Núcleo quântico', rawColor:'#9ad0ca', productColor:'#bd9aff', sky:'#aac5dc', grass:'#718ba8', accent:'#c5a9ff', price:570000000, value:23500},
+  {name:'Megacomplexo industrial', raw:'Recursos integrados', product:'Megaprodutos', machine:'Núcleo industrial', rawColor:'#a9b9bc', productColor:'#ffd477', sky:'#9fb8cd', grass:'#718997', accent:'#ffe396', price:1150000000, value:35200}
+];
+const UPGRADES = [
+  {id:'scythe', name:'Foice', desc:'Aumenta a velocidade de coleta em 50%.', price:30, icon:'✳', kind:'harvest'},
+  {id:'capacity_1', name:'Cesto reforçado', desc:'Capacidade de carga sobe para 14 itens.', price:60, icon:'▤', kind:'capacity'},
+  {id:'better_scythe', name:'Foice aprimorada', desc:'A coleta fica ainda mais rápida.', price:120, icon:'✧', kind:'harvest2'},
+  {id:'oven', name:'Forno aprimorado', desc:'Processamento 80% mais rápido.', price:180, icon:'♨', kind:'machine'},
+  {id:'collector', name:'Funcionário coletor', desc:'Recolhe matéria-prima continuamente.', price:350, icon:'♟', kind:'collector'},
+  {id:'wheat_hauler', name:'Transportador de matéria-prima', desc:'Leva recursos ao processamento.', price:500, icon:'⇢', kind:'hauler'},
+  {id:'bread_hauler', name:'Transportador de produtos', desc:'Leva produtos acabados ao caixa.', price:700, icon:'⇢', kind:'product_hauler'},
+  {id:'capacity_2', name:'Mochila industrial', desc:'Capacidade de carga sobe para 24 itens.', price:900, icon:'▣', kind:'capacity2'},
+  {id:'seller', name:'Atendimento automático', desc:'Funcionário atende os pedidos. Você coleta as moedas.', price:1800, icon:'♙', kind:'seller'},
+  {id:'belt', name:'Esteira transportadora', desc:'Transporta recursos com maior velocidade.', price:3000, icon:'⇆', kind:'belt'},
+  {id:'warehouse', name:'Depósito ampliado', desc:'Aumenta o limite de recursos desta área.', price:5200, icon:'▦', kind:'warehouse'}
+];
+const SAVE_KEY='industryEvolution.web.v1', BACKUP_KEY='industryEvolution.web.backup.v1';
+const $=s=>document.querySelector(s), canvas=$('#world'), ctx=canvas.getContext('2d',{alpha:false});
+const state={coins:0,unlocked:1,activeArea:0,upgrades:[],employees:[],capacity:8,harvestRate:1,processRate:1,bag:{raw:0,product:0},stock:{raw:0,processing:0,ready:0,counter:0},pendingCoins:0,sectorData:{},settings:{volume:0.35,music:0.2,sfx:0.7,sensitivity:1,quality:1,vibration:true,language:'pt-BR'},playSeconds:0};
+const player={x:0,z:1,face:0,walk:0};
+let W=0,H=0,DPR=1,scale=32,cameraX=0,cameraY=0,clock=0,autosave=0,toastTimer=0,lastTime=0,harvestTimer=0,processTimer=0,buyerTimer=7,customer=null,customerSpawnTimer=0,modalConfirm=null,panelTab='overview',panelOpen=false;
+let move={x:0,y:0},keys=new Set(),pointerId=null,joyOrigin={x:0,y:0},effects=[],employees=[],audioCtx=null,musicGain=null,musicStarted=false;
+const STATIONS={field:{x:-7,z:-3},process:{x:-2.8,z:-3},oven:{x:0,z:-3},output:{x:4,z:-3},counter:{x:6,z:1},upgrade:{x:-4,z:5},portal:{x:10,z:4}};
+const obstacleStations=['process','oven','output','counter','upgrade','portal'];
+let lastInteract='',freshClientShown=false,titleScreen=true,hasExistingSave=false;
+
+function loadSave(){
+  let raw=localStorage.getItem(SAVE_KEY); if(!raw)raw=localStorage.getItem(BACKUP_KEY); if(!raw)return;hasExistingSave=true;
+  try{const d=JSON.parse(raw);if(d.version!==1)return;Object.assign(state,d.state||{});Object.assign(state.settings,{volume:.35,music:.2,sfx:.7,sensitivity:1,quality:1,vibration:true,language:'pt-BR'},d.state?.settings||{});Object.assign(player,d.player||{});state.unlocked=Math.max(1,Math.min(20,state.unlocked|0));state.activeArea=Math.max(0,Math.min(state.unlocked-1,state.activeArea|0));state.capacity=Math.max(8,state.capacity|0);state.bag={raw:Math.max(0,+state.bag?.raw||0),product:Math.max(0,+state.bag?.product||0)};state.stock={raw:0,processing:0,ready:0,counter:0,...state.stock};state.sectorData??={};employees=Array.isArray(d.workers)?d.workers:[];state.upgrades=Array.isArray(state.upgrades)?state.upgrades:[];state.employees=Array.isArray(state.employees)?state.employees:[];state.coins=Math.max(0,+state.coins||0);state.pendingCoins=Math.max(0,+state.pendingCoins||0)}catch(e){console.warn('Save inválido; iniciando uma nova partida.',e)}
+}
+function saveGame(){try{const text=JSON.stringify({version:1,state,player,workers:employees});localStorage.setItem(BACKUP_KEY,text);localStorage.setItem(SAVE_KEY,text);$('#save-state').textContent='● salvo';$('#save-state').style.color='var(--mint)'}catch(e){toast('Não foi possível salvar neste navegador.');console.error(e)}}
+function setSavePending(){const el=$('#save-state');if(el){el.textContent='● salvando';el.style.color='var(--gold)'}}
+function money(n){n=Math.floor(n||0);return n.toLocaleString('pt-BR')}
+function area(){return AREAS[state.activeArea]}
+function areaPrice(){return AREAS[state.unlocked].price||Infinity}
+function capacityUsed(){return state.bag.raw+state.bag.product}
+function stockLimit(){return 28+(state.upgrades.includes('warehouse')?32:0)+state.activeArea*6}
+function dist(a,b){return Math.hypot(a.x-b.x,a.z-b.z)}
+function toast(text){const el=$('#toast');el.textContent=text;el.classList.add('show');toastTimer=2.8}
+function sound(kind='coin'){
+  if(state.settings.volume<=0||state.settings.sfx<=0)return;try{audioCtx??=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type=kind==='sale'?'triangle':'sine';o.frequency.setValueAtTime(kind==='sale'?520:760,audioCtx.currentTime);o.frequency.exponentialRampToValueAtTime(kind==='sale'?260:1120,audioCtx.currentTime+.12);g.gain.setValueAtTime(.11*state.settings.volume*state.settings.sfx,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.16);o.start();o.stop(audioCtx.currentTime+.17)}catch{}
+}
+function startAmbient(){try{audioCtx??=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();if(!musicStarted){musicGain=audioCtx.createGain();musicGain.gain.value=.012*state.settings.volume*state.settings.music;musicGain.connect(audioCtx.destination);[130.81,164.81,196].forEach((hz,i)=>{const o=audioCtx.createOscillator();o.type='sine';o.frequency.value=hz;o.detune.value=(i-1)*4;o.connect(musicGain);o.start()});musicStarted=true}else if(musicGain)musicGain.gain.setTargetAtTime(.012*state.settings.volume*state.settings.music,audioCtx.currentTime,.2)}catch{}}
+function vibrate(){if(state.settings.vibration&&navigator.vibrate)navigator.vibrate(18)}
+function addCoins(amount){state.coins+=amount;state.pendingCoins=Math.max(0,state.pendingCoins-amount);refreshHud();saveGame();sound();floatText('+'+money(amount)+' ◉',STATIONS.counter.x,STATIONS.counter.z,area().accent)}
+function refreshHud(){const a=area();$('#coins').textContent=money(state.coins);$('#area-name').textContent=a.name.toLocaleUpperCase('pt-BR');$('#area-number').textContent='ÁREA '+String(state.activeArea+1).padStart(2,'0');$('#wheat-count').textContent=state.bag.raw;$('#bread-count').textContent=state.bag.product;$('#stock-count').textContent=state.stock.ready+state.stock.counter+state.stock.processing;$('#capacity').textContent=`${capacityUsed()} / ${state.capacity}`;$('#load-fill').style.width=`${Math.min(100,100*capacityUsed()/state.capacity)}%`}
+function openPanel(tab='overview'){panelOpen=true;panelTab=tab;$('#panel').classList.add('open');$('#panel').setAttribute('aria-hidden','false');drawPanel()}
+function closePanel(){$('#panel').classList.remove('open');$('#panel').setAttribute('aria-hidden','true');panelOpen=false}
+function drawPanel(){
+  const a=area(), content=$('#panel-content');$('#panel-kicker').textContent=`ÁREA ${String(state.activeArea+1).padStart(2,'0')} • ${a.name.toLocaleUpperCase('pt-BR')}`;
+  $('#panel-title').textContent=panelTab==='overview'?'Central da fábrica':panelTab==='progress'?'Sua evolução':'Configurações';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===panelTab));
+  if(panelTab==='overview'){
+    const next=AREAS[state.unlocked],nxt=next?`<div class="card"><h3>Próximo setor</h3><p>${next.name} • abertura física no portal da fazenda • ${money(next.price)} moedas</p><div class="meter"><i style="width:${Math.min(100,100*state.coins/next.price)}%"></i></div></div>`:'<div class="card"><h3>Megacomplexo concluído</h3><p>Você abriu os 20 setores industriais.</p></div>';
+    const offers=UPGRADES.slice(0,4).map(u=>`<div class="card upgrade-card"><span class="upgrade-symbol">${u.icon}</span><div><h3>${u.name} ${state.upgrades.includes(u.id)?'✓':''}</h3><p>${u.desc}</p><small>${state.upgrades.includes(u.id)?'Adquirida':'Disponível na plataforma física • '+money(upgradePrice(u))+' moedas'}</small></div></div>`).join('');
+    content.innerHTML=`<div class="stat-grid"><div class="stat"><small>MOEDAS</small><b>◉ ${money(state.coins)}</b></div><div class="stat"><small>ÁREAS ABERTAS</small><b>${state.unlocked} / 20</b></div><div class="stat"><small>${a.raw.toLocaleUpperCase('pt-BR')} NO ESTOQUE</small><b>${money(state.stock.raw+state.stock.processing)}</b></div><div class="stat"><small>${a.product.toLocaleUpperCase('pt-BR')} NO ESTOQUE</small><b>${money(state.stock.ready+state.stock.counter)}</b></div></div><p class="section-title">SETOR ATUAL</p><div class="card"><h3>${a.machine} • ${a.product}</h3><p>Colha ${a.raw.toLocaleLowerCase('pt-BR')}, entregue na estação de processamento, recolha ${a.product.toLocaleLowerCase('pt-BR')} e abasteça o caixa. Os clientes fazem pedidos de 1 a 3 unidades.</p></div><p class="section-title">MELHORIAS DISPONÍVEIS</p>${offers||'<div class="card"><p>Todas as melhorias disponíveis foram compradas.</p></div>'}<p class="section-title">COMUNIDADE</p><div class="card"><h3>Apoie o desenvolvedor</h3><p>Doações são opcionais e não concedem vantagens no jogo. Nenhum pagamento é processado por este protótipo web.</p></div><div class="card"><h3>Privacidade e termos</h3><p>O jogo funciona sem conta e sem conexão. Seu progresso fica armazenado localmente neste navegador. Nenhum dado pessoal é enviado.</p></div><div class="card"><h3>Sobre</h3><p>Industry Evolution • jogo independente em português brasileiro.</p></div>`;
+    content.insertAdjacentHTML('beforeend',`<p class="section-title">DESBLOQUEIO</p>${nxt}`);
+  }else if(panelTab==='progress'){
+    content.innerHTML=`<div class="stat-grid"><div class="stat"><small>SETORES ABERTOS</small><b>${state.unlocked}/20</b></div><div class="stat"><small>FUNCIONÁRIOS</small><b>${state.employees.length}</b></div><div class="stat"><small>MELHORIAS</small><b>${state.upgrades.length}</b></div><div class="stat"><small>TEMPO DE JOGO</small><b>${Math.floor(state.playSeconds/60)} min</b></div></div><p class="section-title">ÁREAS INDUSTRIAIS</p>`+AREAS.map((a,i)=>`<div class="progress-row ${i<state.unlocked?'done':i===state.unlocked?'next':''}"><span class="num">${String(i+1).padStart(2,'0')}</span><div><b>${a.name}</b><small>${a.raw} → ${a.product}</small></div><span class="check">${i<state.unlocked?'✓':i===state.unlocked?money(a.price)+' ◉':'🔒'}</span></div>`).join('');
+  }else{
+    content.innerHTML=`<div class="card"><h3>Controles</h3><p>WASD ou setas no computador. Arraste no lado esquerdo da tela para mover no celular. Ande até as estações para trabalhar.</p></div><label class="form-row">Volume geral <input type="range" min="0" max="1" step=".05" value="${state.settings.volume}" data-setting="volume"></label><label class="form-row">Música ambiente <input type="range" min="0" max="1" step=".05" value="${state.settings.music}" data-setting="music"></label><label class="form-row">Efeitos sonoros <input type="range" min="0" max="1" step=".05" value="${state.settings.sfx}" data-setting="sfx"></label><label class="form-row">Sensibilidade do joystick <input type="range" min=".5" max="1.8" step=".1" value="${state.settings.sensitivity}" data-setting="sensitivity"></label><label class="form-row">Qualidade gráfica <select data-setting="quality"><option value="1">Alta</option><option value=".75">Média</option><option value=".55">Baixa</option></select></label><label class="form-row">Vibração <input type="checkbox" data-setting="vibration" ${state.settings.vibration?'checked':''}></label><div class="form-row"><span>Idioma</span><select disabled><option>Português (Brasil)</option></select></div><p class="section-title">DADOS LOCAIS</p><div class="card"><p>Salvamento automático neste dispositivo. Não precisa de conta nem internet.</p></div><button class="danger" id="delete-save">Apagar todo o progresso</button>`;
+    const q=content.querySelector('[data-setting="quality"]');q.value=String(state.settings.quality);
+    content.querySelectorAll('[data-setting]').forEach(el=>el.addEventListener('input',()=>{let k=el.dataset.setting;state.settings[k]=el.type==='checkbox'?el.checked:+el.value;resize();startAmbient();saveGame()}));content.querySelector('#delete-save').addEventListener('click',askDelete);
+  }
+}
+function buyUpgrade(id){const u=UPGRADES.find(x=>x.id===id);if(!u||state.upgrades.includes(id))return;const cost=upgradePrice(u);if(state.coins<cost){toast('Faltam '+money(cost-state.coins)+' moedas para esta melhoria.');return}state.coins-=cost;state.upgrades.push(id);applyUpgrade(u);refreshHud();saveGame();drawPanel();toast(`${u.name} comprada!`);sound('sale');vibrate()}
+function upgradePrice(u){return Math.round(u.price*Math.pow(1.65,state.activeArea))}
+function applyUpgrade(u){switch(u.kind){case'harvest':state.harvestRate=1.5;break;case'harvest2':state.harvestRate=2.5;break;case'capacity':state.capacity=14;break;case'capacity2':state.capacity=24;break;case'machine':state.processRate=1.8;break;case'collector':hire('collector');break;case'hauler':hire('hauler');break;case'product_hauler':hire('product_hauler');break;case'seller':hire('seller');break;case'belt':state.processRate*=1.35;break;case'warehouse':break}}
+function hire(role){if(state.employees.includes(role))return;state.employees.push(role);employees.push({role,x:role==='collector'?-9:-1,z:role==='collector'?-3:0,target:0,phase:Math.random()*8})}
+function nextUpgrade(){return UPGRADES.find(u=>!state.upgrades.includes(u.id))}
+function buyPhysicalUpgrade(){const u=nextUpgrade();if(!u){toast('Todas as melhorias atuais foram adquiridas.');return}buyUpgrade(u.id)}
+function snapshotSector(){state.sectorData[state.activeArea]={bag:{...state.bag},stock:{...state.stock},pendingCoins:state.pendingCoins}}
+function restoreSector(index){const d=state.sectorData[index];state.bag={raw:0,product:0,...d?.bag};state.stock={raw:0,processing:0,ready:0,counter:0,...d?.stock};state.pendingCoins=Math.max(0,+d?.pendingCoins||0)}
+function unlockArea(){if(state.unlocked>=20){toast('Você já abriu todas as áreas!');return}const target=AREAS[state.unlocked];if(state.coins<target.price){toast(`Para abrir ${target.name}, junte ${money(target.price-state.coins)} moedas.`);return}snapshotSector();state.coins-=target.price;state.unlocked++;state.activeArea=state.unlocked-1;restoreSector(state.activeArea);player.x=0;player.z=1;customer=null;refreshHud();saveGame();toast(`Novo setor aberto: ${target.name}!`);sound('sale');vibrate();if(panelOpen)drawPanel()}

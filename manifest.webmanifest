@@ -1,0 +1,12 @@
+{
+  "name": "Industry Evolution",
+  "short_name": "Industry Evo",
+  "description": "Um tycoon industrial isométrico para jogar no navegador.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#15282d",
+  "theme_color": "#182a31",
+  "lang": "pt-BR"
+}
